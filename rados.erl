@@ -498,7 +498,7 @@ remove(IoCtx, Oid) when is_integer(IoCtx) ->
 %%
 %% @returns       'ok' on success, {error, Reason} on failure.
 %%
-trunc(IoCtx, Oid, Size) when is_integer(IoCtx), when is_integer(Size) ->
+trunc(IoCtx, Oid, Size) when is_integer(IoCtx), is_integer(Size) ->
     "RADOS NIF library not loaded".
 
 %%

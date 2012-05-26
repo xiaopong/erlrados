@@ -1,0 +1,8 @@
+/ebin
+/logs
+/log
+*.swp
+*.dump
+*.beam
+*.o
+*.so
