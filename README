@@ -1,7 +1,15 @@
-This project is an Erlang binding of the librados on Linux. This has
-been done for my own use, in my own projects. Therefore, I have only
-bound the functions that I needed at the moment. Not all functions of
-the librados are done at this point.
+This project is an Erlang binding of the librados on Linux. It tried 
+too bind the RADOS C API of the Ceph distributed object store as closely
+as possible, while maintaining the Erlang semantics and idioms.
+
+Note that this has been done for my own use, in my own projects. Therefore, 
+I have only bound the functions that I needed at the moment. Not all functions
+of the librados are done at this point.
+
+This project compiles and runs only on Linux. No other platform is 
+supported.
+
+This has been tested on Linux 3.2.x, with Ceph 0.46-1 and Erlang R15B01.
 
 This project is released under the GNU LGPL license. Please refer to
 
