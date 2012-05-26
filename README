@@ -1,6 +1,17 @@
 This project is an Erlang binding of the librados on Linux. This has
-been done for my own use, therefore, I have only bound the functions
-that I needed. Not all functions of the librados are done at this point.
+been done for my own use, in my own projects. Therefore, I have only
+bound the functions that I needed at the moment. Not all functions of
+the librados are done at this point.
 
-This project is released under the LGPL license.
+This project is released under the GNU LGPL license. Please refer to
+
+http://www.gnu.org/licenses/lgpl.html
+
+for more information.
+
+
+
+xp@renzhi.ca
+
+
 
