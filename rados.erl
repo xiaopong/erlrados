@@ -48,7 +48,6 @@
 %% TODO:
 %%   - Get config (rados_cct())
 %%   - get last version
-%%   - Trunc
 %%
 
 %%

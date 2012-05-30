@@ -18,6 +18,83 @@ http://www.gnu.org/licenses/lgpl.html
 for more information.
 
 
+--------------------
+
+How to use:
+
+1) Check out the source code with:
+
+     git clone https://github.com/renzhi/erlrados.git
+
+2) Build the NIF functions in C:
+
+     make
+
+   This will create a shared library rados_nif.so
+
+3) Copy the files
+
+     rados.erl
+     rados_nif.so
+
+   to your project, and them part of the project.
+
+4) In your Erlang code, before you can connect to your Ceph cluster,
+   you need to load the NIF shared library with:
+
+     rados:load("<path/to/rados_nif.so")
+
+   For newer version of Erlang, you can take advantage of the
+
+     -on_load()
+
+   directive. You might want to add the following to rados.erl:
+
+     -on_load(auto_load/0).
+
+     auto_load() ->
+         load("./").
+
+   assuming that you are putting rados_nif.so in the same directory
+   as your beam files.
+
+
+Now, to connect to your cluster from Erlang, you can something like this:
+
+   {ok, Cluster} = rados:create(),
+   rados:conf_read_file(Cluster, "./etc/ceph.conf"),
+   rados:connect(Cluster),
+
+This is assuming that you have your ceph.conf and keyring files under the
+etc folder in the same place as where you execute your Erlang code.
+
+To list all pools in your cluster, do:
+
+   {ok, List} = rados:pool_list(Cluster),
+
+To create a new pool, do:
+
+   rados:pool_create(Cluster, Pool),
+
+To create an IO context to the pool, do:
+
+   {ok, IoCtx} = rados:ioctx_create(Cluster, Pool),
+
+Now, you can read from and write to objects in your pool with the
+IO context.
+
+Once you are done, you can do:
+
+   rados:ioctx_destroy(IoCtx),
+
+to clean up.
+
+To disconnect from the cluster, do:
+
+   rados:shutdown(Cluster).
+
+More information about the functions are available in rados.erl.
+
 
 xp@renzhi.ca
 
