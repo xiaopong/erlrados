@@ -11,10 +11,10 @@
 
 ERL_NIF_TERM x_ioctx_snap_create(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     char snap[MAX_NAME_LEN];
     memset(snap, 0, MAX_NAME_LEN);
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_string(env, argv[1], snap, MAX_NAME_LEN, ERL_NIF_LATIN1))
     {
         return enif_make_badarg(env);
@@ -37,10 +37,10 @@ ERL_NIF_TERM x_ioctx_snap_create(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
 
 ERL_NIF_TERM x_ioctx_snap_remove(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     char snap[MAX_NAME_LEN];
     memset(snap, 0, MAX_NAME_LEN);
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_string(env, argv[1], snap, MAX_NAME_LEN, ERL_NIF_LATIN1))
     {
         return enif_make_badarg(env);
@@ -63,11 +63,11 @@ ERL_NIF_TERM x_ioctx_snap_remove(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
 
 ERL_NIF_TERM x_rollback(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     char oid[MAX_NAME_LEN];
     char snap[MAX_NAME_LEN];
     memset(snap, 0, MAX_NAME_LEN);
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_string(env, argv[1], oid, MAX_NAME_LEN, ERL_NIF_LATIN1) ||
         !enif_get_string(env, argv[2], snap, MAX_NAME_LEN, ERL_NIF_LATIN1))
     {
@@ -91,8 +91,8 @@ ERL_NIF_TERM x_rollback(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 ERL_NIF_TERM x_ioctx_snap_list(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
-    if (!enif_get_long(env, argv[0], &id))
+    uint64_t id;
+    if (!enif_get_uint64(env, argv[0], &id))
     {
         return enif_make_badarg(env);
     }
@@ -132,10 +132,10 @@ ERL_NIF_TERM x_ioctx_snap_list(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv
 }
 ERL_NIF_TERM x_ioctx_snap_lookup(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     char snap[MAX_NAME_LEN];
     memset(snap, 0, MAX_NAME_LEN);
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_string(env, argv[1], snap, MAX_NAME_LEN, ERL_NIF_LATIN1))
     {
         return enif_make_badarg(env);
@@ -159,9 +159,9 @@ ERL_NIF_TERM x_ioctx_snap_lookup(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
 
 ERL_NIF_TERM x_ioctx_snap_get_name(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     rados_snap_t snapid;
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_uint64(env, argv[1], &snapid))
     {
         return enif_make_badarg(env);
@@ -185,9 +185,9 @@ ERL_NIF_TERM x_ioctx_snap_get_name(ErlNifEnv* env, int argc, const ERL_NIF_TERM 
 }
 ERL_NIF_TERM x_ioctx_snap_get_stamp(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     rados_snap_t snapid;
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_uint64(env, argv[1], &snapid))
     {
         return enif_make_badarg(env);

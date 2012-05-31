@@ -1,6 +1,7 @@
 /ebin
 /logs
 /log
+/test/etc
 *.swp
 *.dump
 *.beam

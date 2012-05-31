@@ -10,10 +10,10 @@
 
 ERL_NIF_TERM x_getxattr(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     char oid[MAX_NAME_LEN];
     char xattr[MAX_NAME_LEN];
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_string(env, argv[1], oid, MAX_NAME_LEN, ERL_NIF_LATIN1) ||
         !enif_get_string(env, argv[2], xattr, MAX_NAME_LEN, ERL_NIF_LATIN1))
     {
@@ -43,10 +43,10 @@ ERL_NIF_TERM x_getxattr(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 ERL_NIF_TERM x_setxattr(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     char oid[MAX_NAME_LEN];
     char xattr[MAX_NAME_LEN];
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_string(env, argv[1], oid, MAX_NAME_LEN, ERL_NIF_LATIN1) ||
         !enif_get_string(env, argv[2], xattr, MAX_NAME_LEN, ERL_NIF_LATIN1) ||
         !enif_is_binary(env, argv[3]))
@@ -73,10 +73,10 @@ ERL_NIF_TERM x_setxattr(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 ERL_NIF_TERM x_rmxattr(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     char oid[MAX_NAME_LEN];
     char xattr[MAX_NAME_LEN];
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_string(env, argv[1], oid, MAX_NAME_LEN, ERL_NIF_LATIN1) ||
         !enif_get_string(env, argv[2], xattr, MAX_NAME_LEN, ERL_NIF_LATIN1))
     {
@@ -100,9 +100,9 @@ ERL_NIF_TERM x_rmxattr(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 ERL_NIF_TERM x_getxattrs(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     char oid[MAX_NAME_LEN];
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_string(env, argv[1], oid, MAX_NAME_LEN, ERL_NIF_LATIN1))
     {
         return enif_make_badarg(env);
@@ -121,18 +121,18 @@ ERL_NIF_TERM x_getxattrs(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return make_error_tuple(env, -err);
     }
 
-    long iter_id = random();
+    uint64_t iter_id = new_id();
     map_xattr_iter[iter_id] = iter;
     return enif_make_tuple2(env,
                             enif_make_atom(env, "ok"),
-                            enif_make_long(env, iter_id));
+                            enif_make_uint64(env, iter_id));
 }
 
 ERL_NIF_TERM x_getxattrs_next(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     char oid[MAX_NAME_LEN];
-    if (!enif_get_long(env, argv[0], &id))
+    if (!enif_get_uint64(env, argv[0], &id))
     {
         return enif_make_badarg(env);
     }
@@ -183,9 +183,9 @@ ERL_NIF_TERM x_getxattrs_next(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
 
 ERL_NIF_TERM x_getxattrs_end(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     char oid[MAX_NAME_LEN];
-    if (!enif_get_long(env, argv[0], &id))
+    if (!enif_get_uint64(env, argv[0], &id))
     {
         return enif_make_badarg(env);
     }

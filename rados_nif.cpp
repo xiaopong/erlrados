@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <pthread.h>
 #include <map>
 #include <rados/librados.h>
 #include <erl_nif.h>
@@ -21,6 +22,8 @@
 
 using namespace std;
 
+#define _UINT64_C(c)            c ## UL
+#define _UINT64_MAX             (_UINT64_C(18446744073709551615))
 
 static void dtor_cluster_type(ErlNifEnv* env, void* obj);
 static void dtor_ioctx_type(ErlNifEnv* env, void* obj);
@@ -34,23 +37,27 @@ static ErlNifResourceType * ioctx_type_resource = NULL;
  * by librados api, and it's not possible to pass between Erlang and C.
  * Therefore, we pass a long integer, which is mapped to the handle here.
  */
-map<long, rados_t> map_cluster;
+map<uint64_t, rados_t> map_cluster;
 /*
  * Map of IO context. Same mechanism as the cluster handles.
  */
-map<long, rados_ioctx_t> map_ioctx;
+map<uint64_t, rados_ioctx_t> map_ioctx;
 
 /*
  * Map of list context. Same mechanism as the cluster handles.
  */
-map<long, rados_list_ctx_t> map_list_ctx;
+map<uint64_t, rados_list_ctx_t> map_list_ctx;
 
 /*
  * Map of xattr iterators.
  */
-map<long, rados_xattrs_iter_t> map_xattr_iter;
+map<uint64_t, rados_xattrs_iter_t> map_xattr_iter;
 
-static int load(ErlNifEnv* env, void** priv, ERL_NIF_TERM load_info)
+static uint64_t id_index = 0;
+static pthread_mutex_t id_mutex;
+
+
+int load(ErlNifEnv* env, void** priv, ERL_NIF_TERM load_info)
 {
     ErlNifResourceType * rt = enif_open_resource_type(
         env, NULL, "cluster_type_resource", dtor_cluster_type, ERL_NIF_RT_CREATE, NULL);
@@ -64,8 +71,8 @@ static int load(ErlNifEnv* env, void** priv, ERL_NIF_TERM load_info)
         return -1;
     ioctx_type_resource = rt;
 
-    unsigned int iseed = (unsigned int)time(NULL);
-    srandom(iseed);
+    id_index = 0;
+    pthread_mutex_init(&id_mutex, NULL);
 
     return 0;
 }
@@ -84,6 +91,7 @@ static int upgrade(ErlNifEnv* env,
 
 static void unload(ErlNifEnv* env, void* priv)
 {
+    pthread_mutex_destroy(&id_mutex);
     return;
 }
 
@@ -93,6 +101,16 @@ static void dtor_cluster_type(ErlNifEnv* env, void* obj)
 
 static void dtor_ioctx_type(ErlNifEnv* env, void* obj)
 {
+}
+
+uint64_t new_id()
+{
+    pthread_mutex_lock(&id_mutex);
+    if (id_index == _UINT64_MAX)
+        id_index = 0;
+    id_index++;
+    pthread_mutex_unlock(&id_mutex);
+    return id_index;
 }
 
 ERL_NIF_TERM make_error_tuple(ErlNifEnv* env, int err)

@@ -8,8 +8,8 @@
 
 ERL_NIF_TERM x_aio_flush(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
-    if (!enif_get_long(env, argv[0], &id))
+    uint64_t id;
+    if (!enif_get_uint64(env, argv[0], &id))
     {
         return enif_make_badarg(env);
     }

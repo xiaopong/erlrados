@@ -4,6 +4,7 @@
  */
 
 #include <errno.h>
+#include <stdio.h>
 #include <list>
 
 #include "rados_nif.h"
@@ -17,11 +18,16 @@ ERL_NIF_TERM x_create(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return make_error_tuple(env, -err);
     }
 
-    long id = random();
+    uint64_t id = new_id();
     map_cluster[id] = cluster;
+
+#ifdef __DEBUG
+    printf("x_create() - cluster : %ld\n", id);
+#endif
+
     return enif_make_tuple2(env, 
                             enif_make_atom(env, "ok"),
-                            enif_make_long(env, id));
+                            enif_make_uint64(env, id));
 }
 
 ERL_NIF_TERM x_create_with_user(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
@@ -40,24 +46,31 @@ ERL_NIF_TERM x_create_with_user(ErlNifEnv* env, int argc, const ERL_NIF_TERM arg
         return make_error_tuple(env, -err);
     }
 
-    long id = random();
+    uint64_t id = new_id();
     map_cluster[id] = cluster;
     return enif_make_tuple2(env,
                             enif_make_atom(env, "ok"),
-                            enif_make_long(env, id));
+                            enif_make_uint64(env, id));
 }
 
 ERL_NIF_TERM x_conf_read_file(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
-    if (!enif_get_long(env, argv[0], &id))
+    uint64_t id;
+    if (!enif_get_uint64(env, argv[0], &id))
     {
         return enif_make_badarg(env);
     }
 
+#ifdef __DEBUG
+    printf("x_conf_read_file() - cluster : %ld\n", id);
+#endif
+
     rados_t cluster = map_cluster[id];
     if (cluster == NULL)
     {
+#ifdef __DEBUG
+        printf("x_conf_read_file() - cluster non-existing : %ld\n", id);
+#endif
         return enif_make_badarg(env);
     }
 
@@ -72,18 +85,25 @@ ERL_NIF_TERM x_conf_read_file(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
 
 ERL_NIF_TERM x_conf_read_file2(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     char conf_file[MAX_FILE_NAME_LEN];
     memset(conf_file, 0, MAX_FILE_NAME_LEN);
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_string(env, argv[1], conf_file, MAX_FILE_NAME_LEN, ERL_NIF_LATIN1))
     {
         return enif_make_badarg(env);
     }
 
+#ifdef __DEBUG
+    printf("x_conf_read_file2() - cluster : %ld, conf=%s\n", id, conf_file);
+#endif
+
     rados_t cluster = map_cluster[id];
     if (cluster == NULL)
     {
+#ifdef __DEBUG
+        printf("x_conf_read_file2() - cluster non-existing : %ld\n", id);
+#endif
         return enif_make_badarg(env);
     }
 
@@ -98,12 +118,12 @@ ERL_NIF_TERM x_conf_read_file2(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv
 
 ERL_NIF_TERM x_conf_set(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     char option[MAX_NAME_LEN];
     memset(option, 0, MAX_NAME_LEN);
     char value[MAX_NAME_LEN];
     memset(value, 0, MAX_NAME_LEN);
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_string(env, argv[1], option, MAX_NAME_LEN, ERL_NIF_LATIN1) ||
         !enif_get_string(env, argv[1], option, MAX_NAME_LEN, ERL_NIF_LATIN1))
     {
@@ -127,8 +147,8 @@ ERL_NIF_TERM x_conf_set(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 ERL_NIF_TERM x_connect(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
-    if (!enif_get_long(env, argv[0], &id))
+    uint64_t id;
+    if (!enif_get_uint64(env, argv[0], &id))
     {
         return enif_make_badarg(env);
     }
@@ -150,18 +170,26 @@ ERL_NIF_TERM x_connect(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 ERL_NIF_TERM x_shutdown(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
-    if (!enif_get_long(env, argv[0], &id))
+    uint64_t id;
+    if (!enif_get_uint64(env, argv[0], &id))
     {
+#ifdef __DEBUG
+        printf("x_shutdown() - parameters are invalid\n");
+#endif
         return enif_make_badarg(env);
     }
 
     rados_t cluster = map_cluster[id];
     if (cluster == NULL)
     {
+#ifdef __DEBUG
+        printf("x_shutdown() - cluster non-existing : %ld\n", id);
+#endif
         return enif_make_badarg(env);
     }
-
+#ifdef __DEBUG
+    printf("x_shutdown() - cluster : %ld\n", id);
+#endif
     rados_shutdown(cluster);
     map_cluster.erase(id);
 
@@ -170,8 +198,8 @@ ERL_NIF_TERM x_shutdown(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 ERL_NIF_TERM x_get_instance_id(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
-    if (!enif_get_long(env, argv[0], &id))
+    uint64_t id;
+    if (!enif_get_uint64(env, argv[0], &id))
     {
         return enif_make_badarg(env);
     }
@@ -215,8 +243,8 @@ void scan_pool_name_list(list<int> *pool_list, char * buf, int buf_len)
 
 ERL_NIF_TERM x_pool_list(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
-    if (!enif_get_long(env, argv[0], &id))
+    uint64_t id;
+    if (!enif_get_uint64(env, argv[0], &id))
     {
         return enif_make_badarg(env);
     }
@@ -276,8 +304,8 @@ ERL_NIF_TERM x_pool_list(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 ERL_NIF_TERM x_cluster_stat(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
-    if (!enif_get_long(env, argv[0], &id))
+    uint64_t id;
+    if (!enif_get_uint64(env, argv[0], &id))
     {
         return enif_make_badarg(env);
     }

@@ -17,11 +17,12 @@ using namespace std;
 #define MAX_FILE_NAME_LEN  2048
 #define MAX_BUF_LEN        4096
 
-extern map<long, rados_t> map_cluster;
-extern map<long, rados_ioctx_t> map_ioctx;
-extern map<long, rados_list_ctx_t> map_list_ctx;
-extern map<long, rados_xattrs_iter_t> map_xattr_iter;
+extern map<uint64_t, rados_t> map_cluster;
+extern map<uint64_t, rados_ioctx_t> map_ioctx;
+extern map<uint64_t, rados_list_ctx_t> map_list_ctx;
+extern map<uint64_t, rados_xattrs_iter_t> map_xattr_iter;
 
+uint64_t new_id();
 ERL_NIF_TERM make_error_tuple(ErlNifEnv* env, int err);
 
 ERL_NIF_TERM x_create(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]);

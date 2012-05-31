@@ -212,4 +212,38 @@ test_read_write(Infile, Outfile, PoolName, Oid) ->
     rados:ioctx_destroy(IoOut),
     rados:shutdown(Cluster),
     io:format("Done.~n").
-        
+
+
+create_connect(0) ->
+    [];
+create_connect(Num) ->
+    {ok, Cluster} = rados:create(),
+    rados:conf_read_file(Cluster, "./etc/ceph.conf"),
+    rados:connect(Cluster),
+    [Cluster | create_connect(Num - 1)].
+
+create_cluster_list(Num) ->
+    statistics(runtime),
+    statistics(wall_clock),
+    L = create_connect(Num),
+    {_, Time1} = statistics(runtime),
+    {_, Time2} = statistics(wall_clock),
+    U1 = Time1 * 1000,
+    U2 = Time2 * 1000,
+    io:format("Total time = ~p (~p) microseconds~n", [U1, U2]),
+    L.
+
+shutdown_cluster(C) ->
+    rados:shutdown(C),
+    io:format("Cluster : ~p~n", [C]).
+
+shutdown_cluster_list(L) ->
+    statistics(runtime),
+    statistics(wall_clock),
+    [shutdown_cluster(X) || X <- L],
+    {_, Time1} = statistics(runtime),
+    {_, Time2} = statistics(wall_clock),
+    U1 = Time1 * 1000,
+    U2 = Time2 * 1000,
+    io:format("Total time = ~p (~p) microseconds~n", [U1, U2]),
+    ok.

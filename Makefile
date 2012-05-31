@@ -4,7 +4,7 @@
 ##
 
 CC=g++
-CFLAGS = -g -DGC_MALLOC_CHECK=1 -fPIC -fpermissive
+CFLAGS = -g -DGC_MALLOC_CHECK=1 -fPIC -fpermissive -D__DEBUG
 LIBDIR=-L.
 LIBS=-lrados
 

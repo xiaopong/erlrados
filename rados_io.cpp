@@ -4,14 +4,16 @@
  */
 
 #include <errno.h>
+#include <time.h>
+#include <stdio.h>
 
 #include "rados_nif.h"
 
 ERL_NIF_TERM x_ioctx_create(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     char pool_name[MAX_NAME_LEN];
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_string(env, argv[1], pool_name, MAX_NAME_LEN, ERL_NIF_LATIN1))
     {
         return enif_make_badarg(env);
@@ -30,26 +32,39 @@ ERL_NIF_TERM x_ioctx_create(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return make_error_tuple(env, -err);
     }
 
-    long io_id = random();
+    uint64_t io_id = new_id();
     map_ioctx[io_id] = io;
+
+#ifdef __DEBUG
+    printf("x_ioctx_create() - cluster=%ld, ioctx=%ld\n", id, io_id);
+#endif
+
     return enif_make_tuple2(env,
                             enif_make_atom(env, "ok"),
-                            enif_make_long(env, io_id));
+                            enif_make_uint64(env, io_id));
 }
 
 ERL_NIF_TERM x_ioctx_destroy(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
-    if (!enif_get_long(env, argv[0], &id))
+    uint64_t id;
+    if (!enif_get_uint64(env, argv[0], &id))
     {
+#ifdef __DEBUG
+        printf("x_ioctx_destroy() - parameters are invalid\n");
+#endif
         return enif_make_badarg(env);
     }
 
     rados_ioctx_t io = map_ioctx[id];
     if (io == NULL)
     {
+        printf("x_ioctx_destroy() - ioctx non-existing : %ld\n", id);
         return enif_make_badarg(env);
     }
+
+#ifdef __DEBUG
+    printf("x_ioctx_destroy() - ioctx : %ld\n", id);
+#endif
 
     rados_ioctx_destroy(io);
     map_ioctx.erase(id);
@@ -59,9 +74,9 @@ ERL_NIF_TERM x_ioctx_destroy(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]
 
 ERL_NIF_TERM x_ioctx_pool_set_auid(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     uint64_t uid;
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_uint64(env, argv[1], &uid))
     {
         return enif_make_badarg(env);
@@ -84,8 +99,8 @@ ERL_NIF_TERM x_ioctx_pool_set_auid(ErlNifEnv* env, int argc, const ERL_NIF_TERM 
 
 ERL_NIF_TERM x_ioctx_pool_get_auid(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
-    if (!enif_get_long(env, argv[0], &id))
+    uint64_t id;
+    if (!enif_get_uint64(env, argv[0], &id))
     {
         return enif_make_badarg(env);
     }
@@ -110,8 +125,8 @@ ERL_NIF_TERM x_ioctx_pool_get_auid(ErlNifEnv* env, int argc, const ERL_NIF_TERM 
 
 ERL_NIF_TERM x_ioctx_get_id(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
-    if (!enif_get_long(env, argv[0], &id))
+    uint64_t id;
+    if (!enif_get_uint64(env, argv[0], &id))
     {
         return enif_make_badarg(env);
     }
@@ -130,8 +145,8 @@ ERL_NIF_TERM x_ioctx_get_id(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 ERL_NIF_TERM x_ioctx_get_pool_name(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
-    if (!enif_get_long(env, argv[0], &id))
+    uint64_t id;
+    if (!enif_get_uint64(env, argv[0], &id))
     {
         return enif_make_badarg(env);
     }
@@ -161,27 +176,35 @@ ERL_NIF_TERM x_ioctx_get_pool_name(ErlNifEnv* env, int argc, const ERL_NIF_TERM 
 // Erlang: write(IoCtx, Oid, Data, Offset)
 ERL_NIF_TERM x_write(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     char oid[MAX_NAME_LEN];
     uint64_t offset;
     memset(oid, 0, MAX_NAME_LEN);
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_string(env, argv[1], oid, MAX_NAME_LEN, ERL_NIF_LATIN1) ||
         !enif_is_binary(env, argv[2]) ||
         !enif_get_uint64(env, argv[3], &offset))
     {
+#ifdef __DEBUG
+        printf("x_write() - parameters are invalid\n");
+#endif
         return enif_make_badarg(env);
     }
 
     rados_ioctx_t io = map_ioctx[id];
     if (io == NULL)
     {
+#ifdef __DEBUG
+        printf("x_write() - ioctx non-existing : %ld\n", id);
+#endif
         return enif_make_badarg(env);
     }
 
     ErlNifBinary ibin;
     enif_inspect_binary(env, argv[2], &ibin);
-
+#ifdef __DEBUG
+    printf("x_write() - id=%ld, oid=%s, len=%d, offset=%ld\n", id, oid, ibin.size, offset);
+#endif
     int err = rados_write(io, oid, (const char*)ibin.data, ibin.size, offset);
     if (err < 0) 
     {
@@ -196,10 +219,10 @@ ERL_NIF_TERM x_write(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 // Erlang: write_full(IoCtx, Oid, Data)
 ERL_NIF_TERM x_write_full(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     char oid[MAX_NAME_LEN];
     memset(oid, 0, MAX_NAME_LEN);
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_string(env, argv[1], oid, MAX_NAME_LEN, ERL_NIF_LATIN1) ||
         !enif_is_binary(env, argv[2]))
     {
@@ -228,10 +251,10 @@ ERL_NIF_TERM x_write_full(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 // Erlang: append(IoCtx, Oid, Data)
 ERL_NIF_TERM x_append(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     char oid[MAX_NAME_LEN];
     memset(oid, 0, MAX_NAME_LEN);
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_string(env, argv[1], oid, MAX_NAME_LEN, ERL_NIF_LATIN1) ||
         !enif_is_binary(env, argv[2]))
     {
@@ -261,29 +284,38 @@ ERL_NIF_TERM x_append(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 // Erlang: read(IoCtx, Oid, Len, Offset)
 ERL_NIF_TERM x_read(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     char oid[MAX_NAME_LEN];
     long len;
     uint64_t offset;
     memset(oid, 0, MAX_NAME_LEN);
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_string(env, argv[1], oid, MAX_NAME_LEN, ERL_NIF_LATIN1) ||
         !enif_get_long(env, argv[2], &len) ||
         !enif_get_uint64(env, argv[3], &offset))
     {
+#ifdef __DEBUG
+        printf("x_read() - parameters are invalid\n");
+#endif
         return enif_make_badarg(env);
     }
 
     rados_ioctx_t io = map_ioctx[id];
     if (io == NULL)
     {
+#ifdef __DEBUG
+        printf("x_read() - ioctx non-existing : %ld\n", id);
+#endif
         return enif_make_badarg(env);
     }
-
+#ifdef __DEBUG
+    printf("x_read() - io=%ld, oid=%s, len=%ld, offset=%ld\n", id, oid, len, offset);
+#endif
     char * buf = (char *)malloc(len);
     int err = rados_read(io, oid, buf, len, offset);
     if (err < 0) 
     {
+        free(buf);
         return make_error_tuple(env, -err);
     }
 
@@ -309,9 +341,9 @@ ERL_NIF_TERM x_read(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 ERL_NIF_TERM x_remove(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     char oid[MAX_NAME_LEN];
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_string(env, argv[1], oid, MAX_NAME_LEN, ERL_NIF_LATIN1))
     {
         return enif_make_badarg(env);
@@ -334,10 +366,10 @@ ERL_NIF_TERM x_remove(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 ERL_NIF_TERM x_trunc(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     char oid[MAX_NAME_LEN];
     uint64_t size;
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_string(env, argv[1], oid, MAX_NAME_LEN, ERL_NIF_LATIN1) ||
         !enif_get_uint64(env, argv[2], &size))
     {
@@ -361,8 +393,8 @@ ERL_NIF_TERM x_trunc(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 ERL_NIF_TERM x_ioctx_pool_stat(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
-    if (!enif_get_long(env, argv[0], &id))
+    uint64_t id;
+    if (!enif_get_uint64(env, argv[0], &id))
     {
         return enif_make_badarg(env);
     }
@@ -472,21 +504,29 @@ ERL_NIF_TERM x_ioctx_pool_stat(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv
 
 ERL_NIF_TERM x_stat(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     char oid[MAX_NAME_LEN];
     memset(oid, 0, MAX_NAME_LEN);
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_string(env, argv[1], oid, MAX_NAME_LEN, ERL_NIF_LATIN1))
     {
+#ifdef __DEBUG
+        printf("x_stat() - parameters are invalid\n");
+#endif
         return enif_make_badarg(env);
     }
 
     rados_ioctx_t io = map_ioctx[id];
     if (io == NULL)
     {
+#ifdef __DEBUG
+        printf("x_stat() - ioctx non-existing : %ld\n", id);
+#endif
         return enif_make_badarg(env);
     }
-    
+#ifdef __DEBUG    
+    printf("x_stat() - ioctx=%ld, oid=%s\n", id, oid);
+#endif
     uint64_t size;
     time_t mtime;
     int err = rados_stat(io, oid, &size, &mtime);
@@ -517,8 +557,8 @@ ERL_NIF_TERM x_stat(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 ERL_NIF_TERM x_objects_list_open(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
-    if (!enif_get_long(env, argv[0], &id))
+    uint64_t id;
+    if (!enif_get_uint64(env, argv[0], &id))
     {
         return enif_make_badarg(env);
     }
@@ -536,17 +576,17 @@ ERL_NIF_TERM x_objects_list_open(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
         return make_error_tuple(env, -err);
     }
 
-    long listid = random();
+    uint64_t listid = new_id();
     map_list_ctx[listid] = ctx;
     return enif_make_tuple2(env,
                             enif_make_atom(env, "ok"),
-                            enif_make_long(env, listid));
+                            enif_make_uint64(env, listid));
 }
 
 ERL_NIF_TERM x_objects_list_next(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
-    if (!enif_get_long(env, argv[0], &id))
+    uint64_t id;
+    if (!enif_get_uint64(env, argv[0], &id))
     {
         return enif_make_badarg(env);
     }
@@ -588,13 +628,6 @@ ERL_NIF_TERM x_objects_list_next(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
                                                      t),
                                     term_list);
 
-    // TODO: fix me
-    // Caller must free, according to the API doc.
-    // if (entry[0] != NULL)
-    //     free((void*)entry[0]);
-    // if (entry[0])
-    //     free((void*)key[0]);
-
     return enif_make_tuple2(env,
                             enif_make_atom(env, "ok"),
                             term_list);
@@ -602,8 +635,8 @@ ERL_NIF_TERM x_objects_list_next(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
 
 ERL_NIF_TERM x_objects_list_close(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
-    if (!enif_get_long(env, argv[0], &id))
+    uint64_t id;
+    if (!enif_get_uint64(env, argv[0], &id))
     {
         return enif_make_badarg(env);
     }

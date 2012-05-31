@@ -8,9 +8,9 @@
 
 ERL_NIF_TERM x_pool_lookup(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     char pool_name[MAX_NAME_LEN];
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_string(env, argv[1], pool_name, MAX_NAME_LEN, ERL_NIF_LATIN1))
     {
         return enif_make_badarg(env);
@@ -35,9 +35,9 @@ ERL_NIF_TERM x_pool_lookup(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 ERL_NIF_TERM x_pool_create(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     char pool_name[MAX_NAME_LEN];
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_string(env, argv[1], pool_name, MAX_NAME_LEN, ERL_NIF_LATIN1))
     {
         return enif_make_badarg(env);
@@ -59,10 +59,10 @@ ERL_NIF_TERM x_pool_create(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 ERL_NIF_TERM x_pool_create_for_user(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     char pool_name[MAX_NAME_LEN];
     uint64_t uid;
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_string(env, argv[1], pool_name, MAX_NAME_LEN, ERL_NIF_LATIN1) ||
         !enif_get_uint64(env, argv[2], &uid))
     {
@@ -85,9 +85,9 @@ ERL_NIF_TERM x_pool_create_for_user(ErlNifEnv* env, int argc, const ERL_NIF_TERM
 
 ERL_NIF_TERM x_pool_delete(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-    long id;
+    uint64_t id;
     char pool_name[MAX_NAME_LEN];
-    if (!enif_get_long(env, argv[0], &id) ||
+    if (!enif_get_uint64(env, argv[0], &id) ||
         !enif_get_string(env, argv[1], pool_name, MAX_NAME_LEN, ERL_NIF_LATIN1))
     {
         return enif_make_badarg(env);
