@@ -37,7 +37,7 @@ ERL_NIF_TERM x_getxattr(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     enif_alloc_binary(err, &obin);  // On success, returned value from rados_getxattr() is the length
     memcpy(obin.data, val, err);
     return enif_make_tuple2(env,
-                            erlrados_atoms.ok,
+                            enif_make_atom(env, "ok"),
                             enif_make_binary(env, &obin));
 }
 
@@ -68,7 +68,7 @@ ERL_NIF_TERM x_setxattr(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     {
         return make_error_tuple(env, -err);
     }
-    return erlrados_atoms.ok;
+    return enif_make_atom(env, "ok");
 }
 
 ERL_NIF_TERM x_rmxattr(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
@@ -95,7 +95,7 @@ ERL_NIF_TERM x_rmxattr(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return make_error_tuple(env, -err);
     }
 
-    return erlrados_atoms.ok;
+    return enif_make_atom(env, "ok");
 }
 
 ERL_NIF_TERM x_getxattrs(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
@@ -124,7 +124,7 @@ ERL_NIF_TERM x_getxattrs(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     uint64_t iter_id = new_id();
     map_xattr_iter[iter_id] = iter;
     return enif_make_tuple2(env,
-                            erlrados_atoms.ok,
+                            enif_make_atom(env, "ok"),
                             enif_make_uint64(env, iter_id));
 }
 
@@ -160,24 +160,24 @@ ERL_NIF_TERM x_getxattrs_next(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
         memcpy(obin.data, val[0], len);
         term_list = enif_make_list_cell(env,
                                         enif_make_tuple2(env,
-                                                         erlrados_atoms.value,
+                                                         enif_make_atom(env, "value"),
                                                          enif_make_binary(env, &obin)),
                                         term_list);
         enif_release_binary(&obin);
         ERL_NIF_TERM t = enif_make_string(env, name[0], ERL_NIF_LATIN1);
         term_list = enif_make_list_cell(env,
                                         enif_make_tuple2(env,
-                                                         erlrados_atoms.xattr,
+                                                         enif_make_atom(env, "xattr"),
                                                          t),
                                         term_list);
 
         return enif_make_tuple2(env,
-                                erlrados_atoms.ok,
+                                enif_make_atom(env, "ok"),
                                 term_list);
     }
     else
     {
-        return erlrados_atoms.end;
+        return enif_make_atom(env, "end");
     }
 }
 
@@ -199,5 +199,5 @@ ERL_NIF_TERM x_getxattrs_end(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]
     rados_getxattrs_end(iter);
     map_xattr_iter.erase(id);
 
-    return erlrados_atoms.ok;
+    return enif_make_atom(env, "ok");
 }

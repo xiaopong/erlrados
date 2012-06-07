@@ -26,5 +26,5 @@ ERL_NIF_TERM x_aio_flush(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return make_error_tuple(env, -err);
     }
 
-    return erlrados_atoms.ok;
+    return enif_make_atom(env, "ok");
 }

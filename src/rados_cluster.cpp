@@ -35,7 +35,7 @@ ERL_NIF_TERM x_create(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     logger.flush();
 
     return enif_make_tuple2(env, 
-                            erlrados_atoms.ok,
+                            enif_make_atom(env, "ok"),
                             enif_make_uint64(env, id));
 }
 
@@ -66,7 +66,7 @@ ERL_NIF_TERM x_create_with_user(ErlNifEnv* env, int argc, const ERL_NIF_TERM arg
     logger.debug(MOD_NAME, func_name, "cluster : %ld", id);
 
     return enif_make_tuple2(env,
-                            erlrados_atoms.ok,
+                            enif_make_atom(env, "ok"),
                             enif_make_uint64(env, id));
 }
 
@@ -98,7 +98,7 @@ ERL_NIF_TERM x_conf_read_file(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
         return make_error_tuple(env, -err);
     }
 
-    return erlrados_atoms.ok;
+    return enif_make_atom(env, "ok");
 }
 
 ERL_NIF_TERM x_conf_read_file2(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
@@ -140,7 +140,7 @@ ERL_NIF_TERM x_conf_read_file2(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv
     logger.debug(MOD_NAME, func_name, "config file read: %ld", id);
     logger.flush();
 
-    return erlrados_atoms.ok;
+    return enif_make_atom(env, "ok");
 }
 
 ERL_NIF_TERM x_conf_set(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
@@ -176,7 +176,7 @@ ERL_NIF_TERM x_conf_set(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return make_error_tuple(env, -err);
     }
 
-    return erlrados_atoms.ok;
+    return enif_make_atom(env, "ok");
 }
 
 ERL_NIF_TERM x_connect(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
@@ -207,7 +207,7 @@ ERL_NIF_TERM x_connect(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return make_error_tuple(env, -err);
     }
 
-    return erlrados_atoms.ok;
+    return enif_make_atom(env, "ok");
 }
 
 ERL_NIF_TERM x_shutdown(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
@@ -245,7 +245,7 @@ ERL_NIF_TERM x_shutdown(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     logger.debug(MOD_NAME, func_name, "cluster erased: %ld", id);
     logger.flush();
 
-    return erlrados_atoms.ok;
+    return enif_make_atom(env, "ok");
 }
 
 ERL_NIF_TERM x_get_instance_id(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
@@ -271,7 +271,7 @@ ERL_NIF_TERM x_get_instance_id(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv
     uint64_t inst_id = rados_get_instance_id(cluster);
 
     return enif_make_tuple2(env,
-                            erlrados_atoms.ok,
+                            enif_make_atom(env, "ok"),
                             enif_make_uint64(env, inst_id));
 }
 
@@ -356,13 +356,13 @@ ERL_NIF_TERM x_pool_list(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         free(buf);
 
         return enif_make_tuple2(env,
-                                erlrados_atoms.ok,
+                                enif_make_atom(env, "ok"),
                                 term_list);
     }
     else
     {
         return enif_make_tuple2(env,
-                                erlrados_atoms.ok,
+                                enif_make_atom(env, "ok"),
                                 enif_make_list(env, 0));    // empty list
     }
 }
@@ -400,29 +400,29 @@ ERL_NIF_TERM x_cluster_stat(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     ERL_NIF_TERM t = enif_make_uint64(env, stat.num_objects);
     term_list = enif_make_list_cell(env,
                                     enif_make_tuple2(env,
-                                                     erlrados_atoms.num_objects,
+                                                     enif_make_atom(env, "num_objects"),
                                                      t),
                                     term_list);
     t = enif_make_uint64(env, stat.kb_avail);
     term_list = enif_make_list_cell(env,
                                     enif_make_tuple2(env,
-                                                     erlrados_atoms.kb_avail,
+                                                     enif_make_atom(env, "kb_avail"),
                                                      t),
                                     term_list);
     t = enif_make_uint64(env, stat.kb_used);
     term_list = enif_make_list_cell(env,
                                     enif_make_tuple2(env,
-                                                     erlrados_atoms.kb_used,
+                                                     enif_make_atom(env, "kb_used"),
                                                      t),
                                     term_list);
     t = enif_make_uint64(env, stat.kb);
     term_list = enif_make_list_cell(env,
                                     enif_make_tuple2(env,
-                                                     erlrados_atoms.kb,
+                                                     enif_make_atom(env, "kb"),
                                                      t),
                                     term_list);
 
     return enif_make_tuple2(env,
-                            erlrados_atoms.ok,
+                            enif_make_atom(env, "ok"),
                             term_list);
 }

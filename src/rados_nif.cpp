@@ -58,32 +58,6 @@ XLog logger = XLogManager::instance().getLog("RadosLog");
 
 int load(ErlNifEnv* env, void** priv, ERL_NIF_TERM load_info)
 {
-    erlrados_atoms.ok = enif_make_atom(env, "ok");
-    erlrados_atoms.error = enif_make_atom(env, "error");
-    erlrados_atoms.eof = enif_make_atom(env, "eof");
-    erlrados_atoms.end = enif_make_atom(env, "end");
-    erlrados_atoms.key = enif_make_atom(env, "key");
-    erlrados_atoms.entry = enif_make_atom(env, "entry");
-    erlrados_atoms.num_objects = enif_make_atom(env, "num_objects");
-    erlrados_atoms.kb_avail = enif_make_atom(env, "kb_avail");
-    erlrados_atoms.kb_used = enif_make_atom(env, "kb_used");
-    erlrados_atoms.kb = enif_make_atom(env, "kb");
-    erlrados_atoms.num_wr_kb = enif_make_atom(env, "num_wr_kb");
-    erlrados_atoms.num_wr = enif_make_atom(env, "num_wr");
-    erlrados_atoms.num_rd_kb = enif_make_atom(env, "num_rd_kb");
-    erlrados_atoms.num_rd = enif_make_atom(env, "num_rd");
-    erlrados_atoms.num_objects_degraded = enif_make_atom(env, "num_objects_degraded");
-    erlrados_atoms.num_objects_unfound = enif_make_atom(env, "num_objects_unfound");
-    erlrados_atoms.num_objects_missing_on_primary = enif_make_atom(env, "num_objects_missing_on_primary");
-    erlrados_atoms.num_object_copies = enif_make_atom(env, "num_object_copies");
-    erlrados_atoms.num_object_clones = enif_make_atom(env, "num_object_clones");
-    erlrados_atoms.num_kb = enif_make_atom(env, "num_kb");
-    erlrados_atoms.num_bytes = enif_make_atom(env, "num_bytes");
-    erlrados_atoms.mtime = enif_make_atom(env, "mtime");
-    erlrados_atoms.size = enif_make_atom(env, "size");
-    erlrados_atoms.value = enif_make_atom(env, "value");
-    erlrados_atoms.xattr = enif_make_atom(env, "xattr");
-
     ErlNifResourceType * rt = enif_open_resource_type(
         env, NULL, "cluster_type_resource", dtor_cluster_type, ERL_NIF_RT_CREATE, NULL);
     if (rt == NULL)
@@ -138,7 +112,7 @@ uint64_t new_id()
 
 ERL_NIF_TERM make_error_tuple(ErlNifEnv* env, int err)
 {
-    ERL_NIF_TERM atom = erlrados_atoms.error;
+    ERL_NIF_TERM atom = enif_make_atom(env, "error");
     ERL_NIF_TERM reason = enif_make_string(env, strerror(err), ERL_NIF_LATIN1);
     return enif_make_tuple2(env, atom, reason);
 }
@@ -147,14 +121,14 @@ ERL_NIF_TERM x_add_stderr_log_handler(ErlNifEnv* env, int argc, const ERL_NIF_TE
 {
     XLogStderrHandler *log_handler = new XLogStderrHandler();
     logger.addHandler(*log_handler);
-    return erlrados_atoms.ok;
+    return enif_make_atom(env, "ok");
 }
 
 ERL_NIF_TERM x_add_sys_log_handler(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     XLogSyslogHandler *log_handler = new XLogSyslogHandler();
     logger.addHandler(*log_handler);
-    return erlrados_atoms.ok;
+    return enif_make_atom(env, "ok");
 }
 
 ERL_NIF_TERM x_add_file_log_handler(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
@@ -167,7 +141,7 @@ ERL_NIF_TERM x_add_file_log_handler(ErlNifEnv* env, int argc, const ERL_NIF_TERM
     }
     XLogFileHandler *log_handler = new XLogFileHandler(log_file);
     logger.addHandler(*log_handler);
-    return erlrados_atoms.ok;
+    return enif_make_atom(env, "ok");
 }
 
 static LogLevel atom_to_level(char * level)
@@ -196,7 +170,7 @@ ERL_NIF_TERM x_set_log_level(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]
     }
     LogLevel l = atom_to_level(level);
     logger.setLevel(l);
-    return erlrados_atoms.ok;
+    return enif_make_atom(env, "ok");
 }
 
 ErlNifFunc nif_funcs[] =

@@ -19,34 +19,6 @@ using namespace std;
 #define MAX_FILE_NAME_LEN  2048
 #define MAX_BUF_LEN        4096
 
-struct {
-    ERL_NIF_TERM ok;
-    ERL_NIF_TERM error;
-    ERL_NIF_TERM eof;
-    ERL_NIF_TERM end;
-    ERL_NIF_TERM key;
-    ERL_NIF_TERM entry;
-    ERL_NIF_TERM num_objects;
-    ERL_NIF_TERM kb_avail;
-    ERL_NIF_TERM kb_used;
-    ERL_NIF_TERM kb;
-    ERL_NIF_TERM num_wr_kb;
-    ERL_NIF_TERM num_wr;
-    ERL_NIF_TERM num_rd_kb;
-    ERL_NIF_TERM num_rd;
-    ERL_NIF_TERM num_objects_degraded;
-    ERL_NIF_TERM num_objects_unfound;
-    ERL_NIF_TERM num_objects_missing_on_primary;
-    ERL_NIF_TERM num_object_copies;
-    ERL_NIF_TERM num_object_clones;
-    ERL_NIF_TERM num_kb;
-    ERL_NIF_TERM num_bytes;
-    ERL_NIF_TERM mtime;
-    ERL_NIF_TERM size;
-    ERL_NIF_TERM value;
-    ERL_NIF_TERM xattr;
-} erlrados_atoms;
-
 extern map<uint64_t, rados_t> map_cluster;
 extern map<uint64_t, rados_ioctx_t> map_ioctx;
 extern map<uint64_t, rados_list_ctx_t> map_list_ctx;

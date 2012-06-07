@@ -32,7 +32,7 @@ ERL_NIF_TERM x_ioctx_snap_create(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
         return make_error_tuple(env, -err);
     }
 
-    return erlrados_atoms.ok;
+    return enif_make_atom(env, "ok");
 }
 
 ERL_NIF_TERM x_ioctx_snap_remove(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
@@ -58,7 +58,7 @@ ERL_NIF_TERM x_ioctx_snap_remove(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
         return make_error_tuple(env, -err);
     }
 
-    return erlrados_atoms.ok;
+    return enif_make_atom(env, "ok");
 }
 
 ERL_NIF_TERM x_rollback(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
@@ -86,7 +86,7 @@ ERL_NIF_TERM x_rollback(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return make_error_tuple(env, -err);
     }
 
-    return erlrados_atoms.ok;
+    return enif_make_atom(env, "ok");
 }
 
 ERL_NIF_TERM x_ioctx_snap_list(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
@@ -120,13 +120,13 @@ ERL_NIF_TERM x_ioctx_snap_list(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv
         }
 
         return enif_make_tuple2(env,
-                                erlrados_atoms.ok,
+                                enif_make_atom(env, "ok"),
                                 term_list);
     }
     else
     {
         return enif_make_tuple2(env,
-                                erlrados_atoms.ok,
+                                enif_make_atom(env, "ok"),
                                 enif_make_list(env, 0));    // empty list
     }
 }
@@ -153,7 +153,7 @@ ERL_NIF_TERM x_ioctx_snap_lookup(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
         return make_error_tuple(env, -err);
 
     return enif_make_tuple2(env,
-                            erlrados_atoms.ok,
+                            enif_make_atom(env, "ok"),
                             enif_make_uint64(env, snapid));
 }
 
@@ -180,7 +180,7 @@ ERL_NIF_TERM x_ioctx_snap_get_name(ErlNifEnv* env, int argc, const ERL_NIF_TERM 
         return make_error_tuple(env, -err);
 
     return enif_make_tuple2(env,
-                            erlrados_atoms.ok,
+                            enif_make_atom(env, "ok"),
                             enif_make_string(env, snap, ERL_NIF_LATIN1));
 }
 ERL_NIF_TERM x_ioctx_snap_get_stamp(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
@@ -205,7 +205,7 @@ ERL_NIF_TERM x_ioctx_snap_get_stamp(ErlNifEnv* env, int argc, const ERL_NIF_TERM
         return make_error_tuple(env, -err);
 
     return enif_make_tuple2(env,
-                            erlrados_atoms.ok,
+                            enif_make_atom(env, "ok"),
                             enif_make_uint64(env, tm));
 }
 
