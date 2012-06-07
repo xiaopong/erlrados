@@ -133,7 +133,7 @@ remove_object(Ctx, Oid) ->
     rados:remove(Ctx, Oid).
 
 write_file_to_rados(IoCtx, Fd, Oid, Offset) ->
-    BlockSize = 4096,
+    BlockSize = 64000,
     case file:read(Fd, BlockSize) of
         {ok, Data} ->
             ReadLen = size(Data),
@@ -247,3 +247,42 @@ shutdown_cluster_list(L) ->
     U2 = Time2 * 1000,
     io:format("Total time = ~p (~p) microseconds~n", [U1, U2]),
     ok.
+
+
+process_run(ParentId, Pool, Folder, Filename) -> 
+    io:format("process_run() - parent=~p, pool=~p, folder=~p, file=~p~n",
+             [ParentId, Pool, Folder, Filename]),
+    Cluster = create_and_connect_cluster(),
+    Io = create_ioctx(Cluster, Pool),
+    Path = filename:join([Folder, Filename]),
+    io:format("process_run() - path=~p~n", [Path]),
+    {ok, Fdin} = file:open(Path, [read, raw, binary]),
+    write_file_to_rados(Io, Fdin, Filename, 0),
+    rados:ioctx_destroy(Io),
+    rados:shutdown(Cluster),
+    ParentId ! Filename ++ " is done".
+    
+run(ParentId, Pool, Folder, Filename) ->
+    spawn(?MODULE, process_run, [ParentId, Pool, Folder, Filename]),
+    ok.
+
+wait_for_results(0) ->
+    ok;
+wait_for_results(Count) ->
+    receive
+        Msg ->
+            io:format("~p~n", [Msg]),
+            wait_for_results(Count - 1)
+    end.
+
+test_load_files(Folder, Pool) ->
+    Cluster = create_and_connect_cluster(),
+    create_pool(Cluster, Pool),
+    rados:shutdown(Cluster),
+    {ok, Filenames} = file:list_dir(Folder),
+    Count = lists:foldl(fun(X, Count) -> Count + 1 end, 0, Filenames),
+    Pid = self(),
+    [run(Pid, Pool, Folder, X) || X <- Filenames],
+    wait_for_results(Count),
+    ok.
+        

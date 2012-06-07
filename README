@@ -95,6 +95,11 @@ To disconnect from the cluster, do:
 
 More information about the functions are available in rados.erl.
 
+Notes:
+  Note that the logger component is lifted from one of my other projects developed
+  previously for other purpose. It has half-baked porting to Windows. It probably
+  has problems on Windows, but I never had time, or bothered, to do more testing.
+
 
 xp@renzhi.ca
 
