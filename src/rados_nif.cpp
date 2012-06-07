@@ -52,7 +52,7 @@ map<uint64_t, rados_list_ctx_t> map_list_ctx;
 map<uint64_t, rados_xattrs_iter_t> map_xattr_iter;
 
 static uint64_t id_index = 0;
-static pthread_mutex_t id_mutex;
+static XMutex id_mutex;
 
 XLog logger = XLogManager::instance().getLog("RadosLog");
 
@@ -97,7 +97,6 @@ int load(ErlNifEnv* env, void** priv, ERL_NIF_TERM load_info)
     ioctx_type_resource = rt;
 
     id_index = 0;
-    pthread_mutex_init(&id_mutex, NULL);
 
     return 0;
 }
@@ -116,7 +115,6 @@ static int upgrade(ErlNifEnv* env,
 
 static void unload(ErlNifEnv* env, void* priv)
 {
-    pthread_mutex_destroy(&id_mutex);
     return;
 }
 
@@ -130,11 +128,11 @@ static void dtor_ioctx_type(ErlNifEnv* env, void* obj)
 
 uint64_t new_id()
 {
-    pthread_mutex_lock(&id_mutex);
+    id_mutex.lock();
     if (id_index == _UINT64_MAX)
         id_index = 0;
     id_index++;
-    pthread_mutex_unlock(&id_mutex);
+    id_mutex.unlock();
     return id_index;
 }
 
