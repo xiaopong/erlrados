@@ -36,20 +36,25 @@ static ErlNifResourceType * ioctx_type_resource = NULL;
  * Therefore, we pass a long integer, which is mapped to the handle here.
  */
 map<uint64_t, rados_t> map_cluster;
+static XMutex          map_cluster_mutex;
+
 /*
  * Map of IO context. Same mechanism as the cluster handles.
  */
 map<uint64_t, rados_ioctx_t> map_ioctx;
+static XMutex                map_ioctx_mutex;
 
 /*
  * Map of list context. Same mechanism as the cluster handles.
  */
 map<uint64_t, rados_list_ctx_t> map_list_ctx;
+static XMutex                   map_list_ctx_mutex;
 
 /*
  * Map of xattr iterators.
  */
 map<uint64_t, rados_xattrs_iter_t> map_xattr_iter;
+static XMutex                      map_xattr_iter_mutex;
 
 static uint64_t id_index = 0;
 static XMutex id_mutex;
@@ -100,6 +105,9 @@ static void dtor_ioctx_type(ErlNifEnv* env, void* obj)
 {
 }
 
+/**
+ * Generate a new ID
+ */
 uint64_t new_id()
 {
     id_mutex.lock();
@@ -109,6 +117,127 @@ uint64_t new_id()
     id_mutex.unlock();
     return id_index;
 }
+
+/*
+ * Cluster handles map manipulation functions
+ */
+
+void map_cluster_add(uint64_t id, rados_t cluster)
+{
+    map_cluster_mutex.lock();
+    map_cluster[id] = cluster;
+    map_cluster_mutex.unlock();
+}
+
+rados_t map_cluster_get(uint64_t id)
+{
+    rados_t cluster;
+    map_cluster_mutex.lock();
+    cluster = map_cluster[id];
+    map_cluster_mutex.unlock();
+    return cluster;
+}
+
+rados_t map_cluster_remove(uint64_t id)
+{
+    rados_t cluster;
+    map_cluster_mutex.lock();
+    cluster = map_cluster[id];
+    map_cluster.erase(id);
+    map_cluster_mutex.unlock();
+    return cluster;
+}
+
+/*
+ * IO contexts map manipulation functions
+ */
+
+void map_ioctx_add(uint64_t id, rados_ioctx_t io)
+{
+    map_ioctx_mutex.lock();
+    map_ioctx[id] = io;
+    map_ioctx_mutex.unlock();
+}
+
+rados_ioctx_t map_ioctx_get(uint64_t id)
+{
+    rados_ioctx_t io;
+    map_ioctx_mutex.lock();
+    io = map_ioctx[id];
+    map_ioctx_mutex.unlock();
+    return io;
+}
+
+rados_ioctx_t map_ioctx_remove(uint64_t id)
+{
+    rados_ioctx_t io;
+    map_ioctx_mutex.lock();
+    io = map_ioctx[id];
+    map_ioctx.erase(id);
+    map_ioctx_mutex.unlock();
+    return io;
+}
+
+/*
+ * List contexts map manipulation functions
+ */
+
+void map_list_ctx_add(uint64_t id, rados_list_ctx_t ctx)
+{
+    map_list_ctx_mutex.lock();
+    map_list_ctx[id] = ctx;
+    map_list_ctx_mutex.unlock();
+}
+
+rados_list_ctx_t map_list_ctx_get(uint64_t id)
+{
+    rados_list_ctx_t ctx;
+    map_list_ctx_mutex.lock();
+    ctx = map_list_ctx[id];
+    map_list_ctx_mutex.unlock();
+    return ctx;
+}
+
+rados_list_ctx_t map_list_ctx_remove(uint64_t id)
+{
+    rados_list_ctx_t ctx;
+    map_list_ctx_mutex.lock();
+    ctx = map_list_ctx[id];
+    map_list_ctx.erase(id);
+    map_list_ctx_mutex.unlock();
+    return ctx;
+}
+
+/*
+ * Xattr iterators map manipulation functions
+ */
+
+void map_xattr_iter_add(uint64_t id, rados_xattrs_iter_t it)
+{
+    map_xattr_iter_mutex.lock();
+    map_xattr_iter[id] = it;
+    map_xattr_iter_mutex.unlock();
+}
+
+rados_xattrs_iter_t map_xattr_iter_get(uint64_t id)
+{
+    rados_xattrs_iter_t it;
+    map_xattr_iter_mutex.lock();
+    it = map_xattr_iter[id];
+    map_xattr_iter_mutex.unlock();
+    return it;
+}
+
+rados_xattrs_iter_t map_xattr_iter_remove(uint64_t id)
+{
+    rados_xattrs_iter_t it;
+    map_xattr_iter_mutex.lock();
+    it = map_xattr_iter[id];
+    map_xattr_iter.erase(id);
+    map_xattr_iter_mutex.unlock();
+    return it;
+}
+
 
 ERL_NIF_TERM make_error_tuple(ErlNifEnv* env, int err)
 {

@@ -19,14 +19,26 @@ using namespace std;
 #define MAX_FILE_NAME_LEN  2048
 #define MAX_BUF_LEN        4096
 
-extern map<uint64_t, rados_t> map_cluster;
-extern map<uint64_t, rados_ioctx_t> map_ioctx;
-extern map<uint64_t, rados_list_ctx_t> map_list_ctx;
-extern map<uint64_t, rados_xattrs_iter_t> map_xattr_iter;
-
 extern XLog logger;
 
 uint64_t new_id();
+
+void map_cluster_add(uint64_t id, rados_t cluster);
+rados_t map_cluster_get(uint64_t id);
+rados_t map_cluster_remove(uint64_t id);
+
+void map_ioctx_add(uint64_t id, rados_ioctx_t io);
+rados_ioctx_t map_ioctx_get(uint64_t id);
+rados_ioctx_t map_ioctx_remove(uint64_t id);
+
+void map_list_ctx_add(uint64_t id, rados_list_ctx_t ctx);
+rados_list_ctx_t map_list_ctx_get(uint64_t id);
+rados_list_ctx_t map_list_ctx_remove(uint64_t id);
+
+void map_xattr_iter_add(uint64_t id, rados_xattrs_iter_t it);
+rados_xattrs_iter_t map_xattr_iter_get(uint64_t id);
+rados_xattrs_iter_t map_xattr_iter_remove(uint64_t id);
+
 ERL_NIF_TERM make_error_tuple(ErlNifEnv* env, int err);
 
 ERL_NIF_TERM x_add_stderr_log_handler(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]);

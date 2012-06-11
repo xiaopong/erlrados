@@ -20,7 +20,7 @@ ERL_NIF_TERM x_ioctx_snap_create(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         return enif_make_badarg(env);
@@ -46,7 +46,7 @@ ERL_NIF_TERM x_ioctx_snap_remove(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         return enif_make_badarg(env);
@@ -74,7 +74,7 @@ ERL_NIF_TERM x_rollback(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         return enif_make_badarg(env);
@@ -97,7 +97,7 @@ ERL_NIF_TERM x_ioctx_snap_list(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         return enif_make_badarg(env);
@@ -141,7 +141,7 @@ ERL_NIF_TERM x_ioctx_snap_lookup(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         return enif_make_badarg(env);
@@ -167,7 +167,7 @@ ERL_NIF_TERM x_ioctx_snap_get_name(ErlNifEnv* env, int argc, const ERL_NIF_TERM 
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         return enif_make_badarg(env);
@@ -193,7 +193,7 @@ ERL_NIF_TERM x_ioctx_snap_get_stamp(ErlNifEnv* env, int argc, const ERL_NIF_TERM
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         return enif_make_badarg(env);

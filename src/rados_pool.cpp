@@ -16,7 +16,7 @@ ERL_NIF_TERM x_pool_lookup(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
 
-    rados_t cluster = map_cluster[id];
+    rados_t cluster = map_cluster_get(id);
     if (cluster == NULL)
     {
         return enif_make_badarg(env);
@@ -43,7 +43,7 @@ ERL_NIF_TERM x_pool_create(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
 
-    rados_t cluster = map_cluster[id];
+    rados_t cluster = map_cluster_get(id);
     if (cluster == NULL)
     {
         return enif_make_badarg(env);
@@ -69,7 +69,7 @@ ERL_NIF_TERM x_pool_create_for_user(ErlNifEnv* env, int argc, const ERL_NIF_TERM
         return enif_make_badarg(env);
     }
 
-    rados_t cluster = map_cluster[id];
+    rados_t cluster = map_cluster_get(id);
     if (cluster == NULL)
     {
         return enif_make_badarg(env);
@@ -93,7 +93,7 @@ ERL_NIF_TERM x_pool_delete(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
 
-    rados_t cluster = map_cluster[id];
+    rados_t cluster = map_cluster_get(id);
     if (cluster == NULL)
     {
         return enif_make_badarg(env);

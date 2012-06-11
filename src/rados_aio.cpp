@@ -14,7 +14,7 @@ ERL_NIF_TERM x_aio_flush(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         return enif_make_badarg(env);

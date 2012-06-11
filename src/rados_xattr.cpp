@@ -20,7 +20,7 @@ ERL_NIF_TERM x_getxattr(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         return enif_make_badarg(env);
@@ -54,7 +54,7 @@ ERL_NIF_TERM x_setxattr(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         return enif_make_badarg(env);
@@ -83,7 +83,7 @@ ERL_NIF_TERM x_rmxattr(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         return enif_make_badarg(env);
@@ -108,7 +108,7 @@ ERL_NIF_TERM x_getxattrs(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         return enif_make_badarg(env);
@@ -122,7 +122,7 @@ ERL_NIF_TERM x_getxattrs(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     }
 
     uint64_t iter_id = new_id();
-    map_xattr_iter[iter_id] = iter;
+    map_xattr_iter_add(iter_id, iter);
     return enif_make_tuple2(env,
                             enif_make_atom(env, "ok"),
                             enif_make_uint64(env, iter_id));
@@ -137,7 +137,7 @@ ERL_NIF_TERM x_getxattrs_next(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
         return enif_make_badarg(env);
     }
 
-    rados_xattrs_iter_t iter = map_xattr_iter[id];
+    rados_xattrs_iter_t iter = map_xattr_iter_get(id);
     if (iter == NULL)
     {
         return enif_make_badarg(env);
@@ -190,14 +190,14 @@ ERL_NIF_TERM x_getxattrs_end(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]
         return enif_make_badarg(env);
     }
 
-    rados_xattrs_iter_t iter = map_xattr_iter[id];
+    rados_xattrs_iter_t iter = map_xattr_iter_get(id);
     if (iter == NULL)
     {
         return enif_make_badarg(env);
     }
 
     rados_getxattrs_end(iter);
-    map_xattr_iter.erase(id);
+    map_xattr_iter_remove(id);
 
     return enif_make_atom(env, "ok");
 }

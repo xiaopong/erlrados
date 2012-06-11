@@ -25,7 +25,7 @@ ERL_NIF_TERM x_ioctx_create(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     }
 
     logger.debug(MOD_NAME, func_name, "cluster : %ld", id);
-    rados_t cluster = map_cluster[id];
+    rados_t cluster = map_cluster_get(id);
     if (cluster == NULL)
     {
         logger.error(MOD_NAME, func_name, "cluster non-existing : %ld", id);
@@ -41,7 +41,7 @@ ERL_NIF_TERM x_ioctx_create(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     }
 
     uint64_t io_id = new_id();
-    map_ioctx[io_id] = io;
+    map_ioctx_add(io_id, io);
 
     logger.debug(MOD_NAME, func_name, "cluster=%ld, ioctx=%ld", id, io_id);
 
@@ -61,7 +61,7 @@ ERL_NIF_TERM x_ioctx_destroy(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         logger.error(MOD_NAME, func_name, "ioctx non-existing : %ld", id);
@@ -74,7 +74,7 @@ ERL_NIF_TERM x_ioctx_destroy(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]
     rados_aio_flush(io);
 
     rados_ioctx_destroy(io);
-    map_ioctx.erase(id);
+    map_ioctx_remove(id);
 
     return enif_make_atom(env, "ok");
 }
@@ -92,7 +92,7 @@ ERL_NIF_TERM x_ioctx_pool_set_auid(ErlNifEnv* env, int argc, const ERL_NIF_TERM 
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         logger.error(MOD_NAME, func_name, "ioctx non-existing : %ld", id);
@@ -122,7 +122,7 @@ ERL_NIF_TERM x_ioctx_pool_get_auid(ErlNifEnv* env, int argc, const ERL_NIF_TERM 
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         logger.error(MOD_NAME, func_name, "ioctx non-existing : %ld", id);
@@ -155,7 +155,7 @@ ERL_NIF_TERM x_ioctx_get_id(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         logger.error(MOD_NAME, func_name, "ioctx non-existing : %ld", id);
@@ -181,7 +181,7 @@ ERL_NIF_TERM x_ioctx_get_pool_name(ErlNifEnv* env, int argc, const ERL_NIF_TERM 
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         logger.error(MOD_NAME, func_name, "ioctx non-existing : %ld", id);
@@ -225,7 +225,7 @@ ERL_NIF_TERM x_write(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         logger.error(MOD_NAME, func_name, "ioctx non-existing : %ld", id);
@@ -266,7 +266,7 @@ ERL_NIF_TERM x_write_full(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         logger.error(MOD_NAME, func_name, "ioctx non-existing : %ld", id);
@@ -303,7 +303,7 @@ ERL_NIF_TERM x_append(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         logger.error(MOD_NAME, func_name, "ioctx non-existing : %ld", id);
@@ -344,7 +344,7 @@ ERL_NIF_TERM x_read(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         logger.error(MOD_NAME, func_name, "ioctx non-existing : %ld", id);
@@ -405,7 +405,7 @@ ERL_NIF_TERM x_remove(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         logger.error(MOD_NAME, func_name, "ioctx non-existing : %ld", id);
@@ -439,7 +439,7 @@ ERL_NIF_TERM x_trunc(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         logger.error(MOD_NAME, func_name, "ioctx non-existing : %ld", id);
@@ -469,7 +469,7 @@ ERL_NIF_TERM x_ioctx_pool_stat(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         logger.error(MOD_NAME, func_name, "ioctx non-existing : %ld", id);
@@ -588,7 +588,7 @@ ERL_NIF_TERM x_stat(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         logger.error(MOD_NAME, func_name, "ioctx non-existing : %ld", id);
@@ -637,7 +637,7 @@ ERL_NIF_TERM x_objects_list_open(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
         return enif_make_badarg(env);
     }
 
-    rados_ioctx_t io = map_ioctx[id];
+    rados_ioctx_t io = map_ioctx_get(id);
     if (io == NULL)
     {
         logger.error(MOD_NAME, func_name, "ioctx non-existing : %ld", id);
@@ -652,7 +652,7 @@ ERL_NIF_TERM x_objects_list_open(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
     }
 
     uint64_t listid = new_id();
-    map_list_ctx[listid] = ctx;
+    map_list_ctx_add(listid, ctx);
     return enif_make_tuple2(env,
                             enif_make_atom(env, "ok"),
                             enif_make_uint64(env, listid));
@@ -669,7 +669,7 @@ ERL_NIF_TERM x_objects_list_next(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
         return enif_make_badarg(env);
     }
 
-    rados_list_ctx_t ctx = map_list_ctx[id];
+    rados_list_ctx_t ctx = map_list_ctx_get(id);
     if (ctx == NULL)
     {
         logger.error(MOD_NAME, func_name, "ioctx object list : %ld", id);
@@ -726,7 +726,7 @@ ERL_NIF_TERM x_objects_list_close(ErlNifEnv* env, int argc, const ERL_NIF_TERM a
         return enif_make_badarg(env);
     }
 
-    rados_list_ctx_t ctx = map_list_ctx[id];
+    rados_list_ctx_t ctx = map_list_ctx_get(id);
     if (ctx == NULL)
     {
         logger.error(MOD_NAME, func_name, "ioctx object list : %ld", id);
@@ -736,7 +736,7 @@ ERL_NIF_TERM x_objects_list_close(ErlNifEnv* env, int argc, const ERL_NIF_TERM a
     logger.debug(MOD_NAME, func_name, "list id: %ld", id);
 
     rados_objects_list_close(ctx);
-    map_list_ctx.erase(id);
+    map_list_ctx_remove(id);
 
     return enif_make_atom(env, "ok");
 }

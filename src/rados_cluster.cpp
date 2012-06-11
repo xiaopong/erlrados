@@ -29,7 +29,7 @@ ERL_NIF_TERM x_create(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     logger.flush();
 
     uint64_t id = new_id();
-    map_cluster[id] = cluster;
+    map_cluster_add(id, cluster);
 
     logger.debug(MOD_NAME, func_name, "cluster added to local map: %ld", id);
     logger.flush();
@@ -61,7 +61,7 @@ ERL_NIF_TERM x_create_with_user(ErlNifEnv* env, int argc, const ERL_NIF_TERM arg
     }
 
     uint64_t id = new_id();
-    map_cluster[id] = cluster;
+    map_cluster_add(id, cluster);
 
     logger.debug(MOD_NAME, func_name, "cluster : %ld", id);
 
@@ -84,7 +84,7 @@ ERL_NIF_TERM x_conf_read_file(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
 
     logger.debug(MOD_NAME, func_name, "cluster : %ld", id);
 
-    rados_t cluster = map_cluster[id];
+    rados_t cluster = map_cluster_get(id);
     if (cluster == NULL)
     {
         logger.error(MOD_NAME, func_name, "cluster non-existing : %ld", id);
@@ -120,7 +120,7 @@ ERL_NIF_TERM x_conf_read_file2(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv
     logger.debug(MOD_NAME, func_name, "cluster : %ld", id);
     logger.flush();
 
-    rados_t cluster = map_cluster[id];
+    rados_t cluster = map_cluster_get(id);
     if (cluster == NULL)
     {
         logger.error(MOD_NAME, func_name, "cluster non-existing : %ld", id);
@@ -163,7 +163,7 @@ ERL_NIF_TERM x_conf_set(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
     logger.debug(MOD_NAME, func_name, "cluster : %ld", id);
 
-    rados_t cluster = map_cluster[id];
+    rados_t cluster = map_cluster_get(id);
     if (cluster == NULL)
     {
         logger.error(MOD_NAME, func_name, "cluster non-existing : %ld", id);
@@ -193,7 +193,7 @@ ERL_NIF_TERM x_connect(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
     logger.debug(MOD_NAME, func_name, "cluster : %ld", id);
 
-    rados_t cluster = map_cluster[id];
+    rados_t cluster = map_cluster_get(id);
     if (cluster == NULL)
     {
         logger.error(MOD_NAME, func_name, "cluster non-existing : %ld", id);
@@ -225,7 +225,7 @@ ERL_NIF_TERM x_shutdown(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     logger.debug(MOD_NAME, func_name, "cluster : %ld", id);
     logger.flush();
 
-    rados_t cluster = map_cluster[id];
+    rados_t cluster = map_cluster_get(id);
     if (cluster == NULL)
     {
         logger.error(MOD_NAME, func_name, "cluster non-existing : %ld", id);
@@ -240,7 +240,7 @@ ERL_NIF_TERM x_shutdown(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     logger.debug(MOD_NAME, func_name, "cluster shutdown: %ld", id);
     logger.flush();
     
-    map_cluster.erase(id);
+    map_cluster_remove(id);
 
     logger.debug(MOD_NAME, func_name, "cluster erased: %ld", id);
     logger.flush();
@@ -261,7 +261,7 @@ ERL_NIF_TERM x_get_instance_id(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv
 
     logger.debug(MOD_NAME, func_name, "cluster : %ld", id);
 
-    rados_t cluster = map_cluster[id];
+    rados_t cluster = map_cluster_get(id);
     if (cluster == NULL)
     {
         logger.error(MOD_NAME, func_name, "cluster non-existing : %ld", id);
@@ -312,7 +312,7 @@ ERL_NIF_TERM x_pool_list(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
     logger.debug(MOD_NAME, func_name, "cluster : %ld", id);
 
-    rados_t cluster = map_cluster[id];
+    rados_t cluster = map_cluster_get(id);
     if (cluster == NULL)
     {
         logger.error(MOD_NAME, func_name, "cluster non-existing : %ld", id);
@@ -381,7 +381,7 @@ ERL_NIF_TERM x_cluster_stat(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
     logger.debug(MOD_NAME, func_name, "cluster : %ld", id);
 
-    rados_t cluster = map_cluster[id];
+    rados_t cluster = map_cluster_get(id);
     if (cluster == NULL)
     {
         logger.error(MOD_NAME, func_name, "cluster non-existing : %ld", id);
