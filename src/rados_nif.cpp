@@ -111,11 +111,13 @@ static void dtor_ioctx_type(ErlNifEnv* env, void* obj)
 uint64_t new_id()
 {
     id_mutex.lock();
+    uint64_t id = 0;
     if (id_index == _UINT64_MAX)
         id_index = 0;
     id_index++;
+    id = id_index;
     id_mutex.unlock();
-    return id_index;
+    return id;
 }
 
 /*
